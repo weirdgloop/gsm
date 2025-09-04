@@ -35,8 +35,8 @@ func NewPersistentStorage(filePath string) (*PersistentStorage, error) {
 
 // Load reads and restores secrets from the persistent storage file.
 func (p *PersistentStorage) Load() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+	// p.mu.Lock()
+	// defer p.mu.Unlock()
 
 	if _, err := os.Stat(p.filePath); os.IsNotExist(err) {
 		return nil
@@ -52,25 +52,25 @@ func (p *PersistentStorage) Load() error {
 		return fmt.Errorf("failed to parse storage file: %w", err)
 	}
 
-	p.mu.Lock()
+	// p.mu.Lock()
 	p.secrets = storageData.Secrets
-	p.mu.Unlock()
+	// p.mu.Unlock()
 
 	return nil
 }
 
 // Save writes the current state of secrets to the persistent storage file.
 func (p *PersistentStorage) Save() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+	// p.mu.Lock()
+	// defer p.mu.Unlock()
 
-	p.mu.RLock()
+	// p.mu.RLock()
 	storageData := Data{
 		Secrets:   p.secrets,
 		Timestamp: time.Now().UTC(),
 		Version:   "1.0.0",
 	}
-	p.mu.RUnlock()
+	//p.mu.RUnlock()
 
 	data, err := json.MarshalIndent(storageData, "", "  ")
 	if err != nil {
@@ -106,7 +106,7 @@ func (p *PersistentStorage) AddSecretVersion(ctx context.Context, projectID, sec
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if err := p.Save(); err != nil {
 		p.mu.Lock()
 		key := fmt.Sprintf("%s/%s", projectID, secretID)
@@ -117,7 +117,7 @@ func (p *PersistentStorage) AddSecretVersion(ctx context.Context, projectID, sec
 		p.mu.Unlock()
 		return nil, err
 	}
-	
+
 	return version, nil
 }
 
